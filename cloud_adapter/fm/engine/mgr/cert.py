@@ -18,7 +18,7 @@ import getpass
 from fm.aicc_tools.ailog.log import service_logger, service_logger_without_std, operation_logger_without_std
 from fm.utils.args_check import clean_space_and_quotes, is_legal_args, LegalArgsCheckParam
 from fm.utils import wrap_local_working_directory, constants, write_file_with_link_check, \
-    read_file_with_link_check, encrypt_cert, decrypt_cert, get_config_dir_setting, obs_connection_check
+    read_file_with_link_check, set_cert, get_cert, get_config_dir_setting, obs_connection_check
 from fm.utils.io_utils import DEFAULT_FLAGS, DEFAULT_MODES
 
 CERT_TYPE_LEN_LIMIT = 1
@@ -213,24 +213,24 @@ def refresh_local_cert_cache(cert_input):
     # 获取本地缓存认证信息/默认空认证信息
     if os.path.exists(cert_file_local_path):
         try:
-            cert_output_cipher = read_file_with_link_check(cert_file_local_path, DEFAULT_FLAGS, DEFAULT_MODES)
+            cert_output = read_file_with_link_check(cert_file_local_path, DEFAULT_FLAGS, DEFAULT_MODES)
         except Exception as ex:
             service_logger.error('error occurred when loading local registry cache, see service log for error message.')
             service_logger_without_std(ex)
             raise ex
 
         try:
-            cert_output = decrypt_cert(cert_output_cipher)
+            cert_dict = get_cert(cert_output)
         except Exception as ex:
             service_logger.error('error occurred when decrypting, see service log for error message.')
             service_logger_without_std(ex)
             raise ex
     else:
-        cert_output = {'scenario': dict()}
+        cert_dict = {'scenario': dict()}
 
-    # 将新认证信息加密刷新到存量认证信息中
+    # 将新认证信息刷新到存量认证信息中
     try:
-        encrypt_cert(cert_input, cert_output)
+        set_cert(cert_input, cert_dict)
     except Exception as ex:
         service_logger.error('error occurred when encrypting local registry cache, see service log for error message.')
         service_logger_without_std(ex)
@@ -240,10 +240,10 @@ def refresh_local_cert_cache(cert_input):
         os.remove(cert_file_local_path)
 
     try:
-        write_file_with_link_check(cert_file_local_path, cert_output, DEFAULT_FLAGS, DEFAULT_MODES)
+        write_file_with_link_check(cert_file_local_path, cert_dict, DEFAULT_FLAGS, DEFAULT_MODES)
     except Exception as ex:
         service_logger.error('error occurred when saving local registry cache, see service log for error message.')
         service_logger_without_std(ex)
         raise ex
 
-    del cert_output
+    del cert_dict

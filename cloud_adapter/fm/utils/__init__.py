@@ -13,8 +13,7 @@
 # limitations under the License.
 # ============================================================================
 from fm.utils import constants
-from fm.utils.kmc_supports import kmc_status_ok, encrypt_with_kmc, decrypt_with_kmc
-from fm.utils.cert_utils import decrypt_cert, encrypt_cert
+from fm.utils.cert_utils import get_cert, set_cert
 from fm.utils.io_utils import wrap_local_working_directory, is_link, read_file_with_link_check, \
     write_file_with_link_check, get_config_dir_setting, get_ca_dir_setting
 from fm.utils.default_scenario_utils import get_default_scenario_from_local, set_default_scenario_to_local, \

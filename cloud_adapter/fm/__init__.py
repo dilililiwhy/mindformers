@@ -23,10 +23,7 @@ from fm.engine import finetune_options, show_options, evaluate_options, config_o
     ModelConfigPathOption, ModelNameOption, PretrainedModelPathOption, app_callback, cache_cert, manually_input_cert, \
     cert_param_existence_check, cached_app_callback, cert_verify
 
-# kmc part
-from fm.kmc import kmc_constants, Kmc
-
 # utils part
-from fm.utils import constants, kmc_status_ok, is_legal_device_num, is_legal_ip_format, is_legal_node_num, \
-    wrap_local_working_directory, is_link, encrypt_cert, decrypt_cert, get_default_scenario_from_local, \
+from fm.utils import constants, is_legal_device_num, is_legal_ip_format, is_legal_node_num, \
+    wrap_local_working_directory, is_link, set_cert, get_cert, get_default_scenario_from_local, \
     set_default_scenario_to_local, refresh_default_scenario_cache, log_exception_details, set_ssl_verify

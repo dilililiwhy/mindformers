@@ -19,7 +19,7 @@ from importlib import import_module
 from fm.aicc_tools.ailog.log import service_logger, service_logger_without_std
 from fm.aicc_tools.utils import check_in_modelarts
 from fm.utils import constants, obs_connection_check, extract_ak_sk_endpoint_token_from_cert
-from fm.utils.cert_utils import decrypt_cert
+from fm.utils.cert_utils import get_cert
 from fm.utils.io_utils import DEFAULT_FLAGS, DEFAULT_MODES, \
     wrap_local_working_directory, read_file_with_link_check, get_config_dir_setting
 from fm.utils.obs_tool import download_from_obs, check_obs_path
@@ -119,21 +119,21 @@ def get_cached_cert(flatten_to_list=False):
             'no local registry cache file found, use registry command to init local registry cache.')
         raise RuntimeError
 
-    cert_info_cipher = read_file_with_link_check(local_cert_cache_file_path, DEFAULT_FLAGS, DEFAULT_MODES)
+    cert_output = read_file_with_link_check(local_cert_cache_file_path, DEFAULT_FLAGS, DEFAULT_MODES)
 
-    cert_info_plain = decrypt_cert(cert_info_cipher, flatten_to_list=flatten_to_list)
+    cert = get_cert(cert_output, flatten_to_list=flatten_to_list)
 
-    if 'scenario' not in cert_info_plain:
+    if 'scenario' not in cert:
         service_logger.error('key scenario not found in local registry cache file.')
-        del cert_info_plain
+        del cert
         raise RuntimeError
 
-    cert_info = cert_info_plain.get('scenario')
+    cert_info = cert.get('scenario')
 
     # 校验认证信息是否可以成功连接至obs
     obs_connection_check(cert_info)
 
-    del cert_info_plain
+    del cert
 
     return cert_info
 
